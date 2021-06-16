@@ -43,26 +43,35 @@ set(LIBRARY_SOURCES
   ${HEADERS}
   )
 
-set(PROGRAM "cmark_exe")
-set(PROGRAM_SOURCES main.c)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark_version.h)
 
 include(GNUInstallDirs)
 include (GenerateExportHeader)
 
-add_executable(${PROGRAM} ${PROGRAM_SOURCES})
-set_target_properties(${PROGRAM} PROPERTIES
-  OUTPUT_NAME "cmark")
+if(CMARK_PROGRAM)
+  set(PROGRAM "cmark_exe")
+  set(PROGRAM_SOURCES main.c)
 
-if (CMARK_STATIC)
-  target_link_libraries(${PROGRAM} ${STATICLIBRARY})
-  # Disable the PUBLIC declarations when compiling the executable:
+  add_executable(${PROGRAM} ${PROGRAM_SOURCES})
   set_target_properties(${PROGRAM} PROPERTIES
-    COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
-elseif (CMARK_SHARED)
-  target_link_libraries(${PROGRAM} ${LIBRARY})
+    OUTPUT_NAME "cmark")
+
+  if (CMARK_STATIC)
+    target_link_libraries(${PROGRAM} ${STATICLIBRARY})
+    # Disable the PUBLIC declarations when compiling the executable:
+    set_target_properties(${PROGRAM} PROPERTIES
+      COMPILE_FLAGS -DCMARK_STATIC_DEFINE)
+  elseif (CMARK_SHARED)
+    target_link_libraries(${PROGRAM} ${LIBRARY})
+  endif()
+
+  if(MSVC)
+    set_property(TARGET ${PROGRAM}
+      APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
+  endif(MSVC)
+
+  list(APPEND CMARK_INSTALL ${PROGRAM})
 endif()
 
 # -fvisibility=hidden
@@ -112,17 +121,12 @@ if (CMARK_STATIC)
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
-if (MSVC)
-  set_property(TARGET ${PROGRAM}
-    APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
-endif(MSVC)
-
 if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
   set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
   include(InstallRequiredSystemLibraries)
 endif()
 
-install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
+install(TARGETS ${CMARK_INSTALL}
   EXPORT cmark-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
