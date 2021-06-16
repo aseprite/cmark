@@ -53,6 +53,7 @@ if(DEFINED CMARK_STATIC)
   endif()
 endif()
 
+option(CMARK_PROGRAM "Build cmark executable" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 option(BUILD_SHARED_LIBS "Build the CMark library as shared"
   ${_CMARK_BUILD_SHARED_LIBS_DEFAULT})

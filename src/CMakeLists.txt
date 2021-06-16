@@ -51,21 +51,30 @@ generate_export_header(cmark
 # path for OSS Fuzz.
 add_custom_target(cmark_static DEPENDS cmark)
 
-add_executable(cmark_exe
-  main.c)
-cmark_add_compile_options(cmark_exe)
-set_target_properties(cmark_exe PROPERTIES
-  OUTPUT_NAME "cmark"
-  INSTALL_RPATH "${Base_rpath}")
-target_link_libraries(cmark_exe PRIVATE
-  cmark)
-
-install(TARGETS cmark_exe cmark
+install(TARGETS cmark
   EXPORT cmark-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
+
+if(CMARK_PROGRAM)
+  add_executable(cmark_exe
+    main.c)
+  cmark_add_compile_options(cmark_exe)
+  set_target_properties(cmark_exe PROPERTIES
+    OUTPUT_NAME "cmark"
+    INSTALL_RPATH "${Base_rpath}")
+  target_link_libraries(cmark_exe PRIVATE
+    cmark)
+
+  install(TARGETS cmark_exe
+    EXPORT cmark-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
