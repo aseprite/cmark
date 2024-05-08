@@ -20,7 +20,6 @@ endif()
 # - 'write_basic_package_version_file'
 # - 'configure_package_config_file'
 include(CMakePackageConfigHelpers)
-include(CTest)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
 
@@ -54,6 +53,7 @@ if(DEFINED CMARK_STATIC)
 endif()
 
 option(CMARK_PROGRAM "Build cmark executable" ON)
+option(CMARK_TESTS "Build cmark tests and enable testing" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 option(BUILD_SHARED_LIBS "Build the CMark library as shared"
   ${_CMARK_BUILD_SHARED_LIBS_DEFAULT})
@@ -124,7 +124,8 @@ add_subdirectory(src)
 if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows)
   add_subdirectory(man)
 endif()
-if(BUILD_TESTING)
+if(CMARK_TESTS)
+  enable_testing()
   add_subdirectory(api_test)
   add_subdirectory(test testdir)
 endif()
